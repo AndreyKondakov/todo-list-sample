@@ -1,0 +1,30 @@
+.board {
+  padding: 16px;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+.columnsList {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  width: max-content;
+  min-height: 100%;
+}
+
+.addColumnContainer {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .board {
+    overflow-x: hidden;
+  }
+
+  .columnsList {
+    flex-direction: column;
+    width: 100%;
+  }
+}
