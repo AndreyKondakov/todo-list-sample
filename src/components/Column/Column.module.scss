@@ -25,15 +25,29 @@ $main-border-radius: 8px;
 
 .columnTasksList {
   flex-grow: 1;
-  padding: 0 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
   min-height: 50px;
 }
 
-.columnFooter {
-  padding: 16px;
+.columnForm {
+  margin: 6px;
+  margin-top: 6px;
+
+  input {
+    width: 100%;
+    padding: 6px 8px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+}
+
+.columnDivider {
+  border: 1px solid rgb(232, 232, 232);
+  width: 80%;
 }
 
 @media (max-width: 767px) {

@@ -2,8 +2,9 @@ import styles from "./Button.module.scss";
 
 type ButtonProps = {
   children: React.ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
   disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 };
 
 const Button = ({ children, disabled, onClick }: ButtonProps) => {
