@@ -57,7 +57,7 @@ const Board: React.FC = () => {
           });
         }
 
-        if (src.type === "task" && target) {
+        if (src.type === "task" && target?.type === "task") {
           setBoardData((prev) => {
             const fromColumnId = src.columnId;
             const toColumnId = target.columnId;
@@ -75,10 +75,20 @@ const Board: React.FC = () => {
             const existingIndex = toTasks.indexOf(src.taskId);
             if (existingIndex !== -1) toTasks.splice(existingIndex, 1);
 
-            let insertIndex = toTasks.length;
-            if (target.type === "task") {
-              const targetIndex = toTasks.indexOf(target.taskId);
-              if (targetIndex !== -1) insertIndex = targetIndex;
+            const targetEl = document.querySelector(
+              `[data-task-id="${target.taskId}"]`
+            ) as HTMLElement | null;
+
+            let insertIndex = toTasks.indexOf(target.taskId);
+            if (insertIndex === -1) insertIndex = toTasks.length;
+
+            if (targetEl) {
+              const rect = targetEl.getBoundingClientRect();
+              const middleY = rect.top + rect.height / 2;
+
+              if (location.current.input.clientY > middleY) {
+                insertIndex += 1;
+              }
             }
 
             toTasks.splice(insertIndex, 0, src.taskId);

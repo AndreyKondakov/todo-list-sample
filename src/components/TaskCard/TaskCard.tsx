@@ -81,6 +81,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
   return (
     <div
       ref={ref}
+      data-task-id={task.id}
       className={`${styles.taskCard} ${isDragOver ? styles.dragOver : ""}`}
     >
       <div className={styles.taskRow}>
