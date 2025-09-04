@@ -1,4 +1,3 @@
-import React from "react";
 import styles from "./FilterBar.module.scss";
 import Button from "../ui/Button";
 

@@ -1,16 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
-import TaskCard from "../TaskCard/TaskCard";
-import styles from "./Column.module.scss";
 import {
   draggable,
   dropTargetForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import type { FuseResultMatch } from "fuse.js";
+
+import { Checkbox } from "../ui/Checkbox/Checkbox";
+import Button from "../ui/Button";
+import styles from "./Column.module.scss";
+import TaskCard from "../TaskCard/TaskCard";
+import type { BoardState } from "../../types/board";
 import type { Column as ColumnType } from "../../types/column";
 import type { Task } from "../../types/task";
-import type { BoardState } from "../../types/board";
-import Button from "../ui/Button";
-import type { FuseResultMatch } from "fuse.js";
-import { Checkbox } from "../ui/Checkbox/Checkbox";
 
 interface ColumnProps {
   column: ColumnType;
@@ -188,6 +189,20 @@ const Column: React.FC<ColumnProps> = ({
     setSelectedTasks(new Set());
   };
 
+  const handleDeleteColumn = () => {
+    setBoardData((prev) => {
+      const { [column.id]: _, ...restCols } = prev.columns;
+      const taskIdsToRemove = prev.columns[column.id].taskIds;
+      const restTasks = { ...prev.tasks };
+      taskIdsToRemove.forEach((id) => delete restTasks[id]);
+      return {
+        tasks: restTasks,
+        columns: restCols,
+        columnOrder: prev.columnOrder.filter((cId) => cId !== column.id),
+      };
+    });
+  };
+
   return (
     <div
       ref={ref}
@@ -234,21 +249,7 @@ const Column: React.FC<ColumnProps> = ({
                 </button>
                 <button
                   className={styles.iconButton}
-                  onClick={() => {
-                    setBoardData((prev) => {
-                      const { [column.id]: _, ...restCols } = prev.columns;
-                      const taskIdsToRemove = prev.columns[column.id].taskIds;
-                      const restTasks = { ...prev.tasks };
-                      taskIdsToRemove.forEach((id) => delete restTasks[id]);
-                      return {
-                        tasks: restTasks,
-                        columns: restCols,
-                        columnOrder: prev.columnOrder.filter(
-                          (cId) => cId !== column.id
-                        ),
-                      };
-                    });
-                  }}
+                  onClick={handleDeleteColumn}
                   title="Delete column"
                 >
                   🗑

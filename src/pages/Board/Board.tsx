@@ -1,30 +1,15 @@
 import React, { useState, useEffect } from "react";
-import styles from "./Board.module.scss";
-import Column from "../../components/Column/Column";
-import Button from "../../components/ui/Button";
-import FilterBar from "../../components/FilterBar/FilterBar";
-import { initialData } from "../../data/initialData";
-import type { BoardState } from "../../types/board";
-import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import Fuse from "fuse.js";
+
+import { loadBoard, LOCAL_STORAGE_KEY } from "../../app/store";
+import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import Button from "../../components/ui/Button";
+import Column from "../../components/Column/Column";
+import FilterBar from "../../components/FilterBar/FilterBar";
+import styles from "./Board.module.scss";
+import type { BoardState } from "../../types/board";
 import type { FuseResult, FuseResultMatch } from "fuse.js";
 import type { Task } from "../../types/task";
-
-const LOCAL_STORAGE_KEY = "todo-board-v3";
-
-function loadBoard(): BoardState {
-  try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(initialData));
-      return initialData;
-    }
-    return JSON.parse(raw) as BoardState;
-  } catch (err) {
-    console.error("[Board] load error", err);
-    return initialData;
-  }
-}
 
 const Board: React.FC = () => {
   const [boardData, setBoardData] = useState<BoardState>(() => loadBoard());
@@ -120,7 +105,6 @@ const Board: React.FC = () => {
             const fromIndex = fromTasks.indexOf(src.taskId);
             if (fromIndex !== -1) fromTasks.splice(fromIndex, 1);
 
-            // просто додаємо в кінець порожнього списку
             toTasks.push(src.taskId);
 
             return {

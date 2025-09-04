@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-import styles from "./TaskCard.module.scss";
 import {
   draggable,
   dropTargetForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import type { Task } from "../../types/task";
-import type { BoardState } from "../../types/board";
-import { highlightMatch } from "../../utils/highlight";
-import { Checkbox } from "../ui/Checkbox/Checkbox";
 import type { FuseResultMatch } from "fuse.js";
+
+import { Checkbox } from "../ui/Checkbox/Checkbox";
+import { highlightMatch } from "../../utils/highlight";
+import styles from "./TaskCard.module.scss";
+import type { BoardState } from "../../types/board";
+import type { Task } from "../../types/task";
 
 interface TaskCardProps {
   task: Task;
@@ -89,6 +90,26 @@ const TaskCard: React.FC<TaskCardProps> = ({
     }));
   };
 
+  const handleDeleteTask = () => {
+    setBoardData((prev) => {
+      const { [task.id]: _, ...restTasks } = prev.tasks;
+      const updatedColumns = Object.fromEntries(
+        Object.entries(prev.columns).map(([colId, col]) => [
+          colId,
+          {
+            ...col,
+            taskIds: col.taskIds.filter((id) => id !== task.id),
+          },
+        ])
+      );
+      return {
+        ...prev,
+        tasks: restTasks,
+        columns: updatedColumns,
+      };
+    });
+  };
+
   return (
     <div
       ref={ref}
@@ -156,25 +177,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
               </button>
               <button
                 className={styles.iconButton}
-                onClick={() =>
-                  setBoardData((prev) => {
-                    const { [task.id]: _, ...restTasks } = prev.tasks;
-                    const updatedColumns = Object.fromEntries(
-                      Object.entries(prev.columns).map(([colId, col]) => [
-                        colId,
-                        {
-                          ...col,
-                          taskIds: col.taskIds.filter((id) => id !== task.id),
-                        },
-                      ])
-                    );
-                    return {
-                      ...prev,
-                      tasks: restTasks,
-                      columns: updatedColumns,
-                    };
-                  })
-                }
+                onClick={handleDeleteTask}
                 title="Delete task"
               >
                 🗑
