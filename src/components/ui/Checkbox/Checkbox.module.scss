@@ -1,0 +1,89 @@
+$primary-color: #007bff;
+$secondary-color: #1ba64a;
+
+$border-color: #b8c1ce;
+$checkmark-color: white;
+$label-color: #333;
+$checkbox-size: 14px;
+
+.checkboxContainer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+
+  input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    height: 0;
+    width: 0;
+    cursor: pointer;
+  }
+
+  &.primary {
+    input:checked ~ .customCheckbox {
+      background-color: $primary-color;
+      border-color: $primary-color;
+    }
+    input:focus-visible ~ .customCheckbox {
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.3);
+    }
+  }
+
+  &.secondary {
+    input:checked ~ .customCheckbox {
+      background-color: $secondary-color;
+      border-color: $secondary-color;
+    }
+    input:focus-visible ~ .customCheckbox {
+      box-shadow: 0 0 0 3px rgba($secondary-color, 0.3);
+    }
+  }
+}
+
+.label {
+  color: $label-color;
+  font-size: 16px;
+}
+
+.customCheckbox {
+  height: $checkbox-size;
+  width: $checkbox-size;
+  min-width: $checkbox-size;
+  background-color: white;
+  border: 2px solid $border-color;
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease-in-out;
+
+  &::after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 4px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: solid $checkmark-color;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+}
+
+.checkboxContainer input:checked ~ .customCheckbox::after {
+  display: block;
+}
+
+.checkboxContainer input:disabled ~ .customCheckbox {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+  cursor: not-allowed;
+}
+
+.checkboxContainer input:disabled ~ .label {
+  color: #adb5bd;
+  cursor: not-allowed;
+}

@@ -96,3 +96,16 @@ $main-border-radius: 8px;
   border: 1px solid #d0d7de;
   border-radius: 6px;
 }
+
+.columnActions {
+  display: flex;
+
+  button {
+    margin: 4px;
+  }
+}
+
+.columnSelector {
+  padding-inline: 18px;
+  margin-top: 10px;
+}

@@ -7,6 +7,8 @@ import { initialData } from "../../data/initialData";
 import type { BoardState } from "../../types/board";
 import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import Fuse from "fuse.js";
+import type { FuseResult, FuseResultMatch } from "fuse.js";
+import type { Task } from "../../types/task";
 
 const LOCAL_STORAGE_KEY = "todo-board-v3";
 
@@ -118,9 +120,9 @@ const Board: React.FC = () => {
   const fuse = new Fuse(Object.values(boardData.tasks), fuseOptions);
   const fuseResults = searchQuery ? fuse.search(searchQuery) : [];
 
-  const matchedTasksMap = new Map<string, Fuse.FuseResultMatch[]>();
-  fuseResults.forEach((res) => {
-    if (res.matches) matchedTasksMap.set(res.item.id, res.matches);
+  const matchedTasksMap = new Map<string, FuseResultMatch[]>();
+  fuseResults.forEach((res: FuseResult<Task>) => {
+    if (res.matches) matchedTasksMap.set(res.item.id, [...res.matches]);
   });
 
   return (

@@ -36,13 +36,15 @@ const FilterBar: React.FC<FilterBarProps> = ({
           Incomplete
         </button>
       </div>
-      <input
-        className={styles.searchInput}
-        type="text"
-        placeholder="Search tasks..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
+      <div className={styles.searchContainer}>
+        <input
+          className={styles.searchInput}
+          type="text"
+          placeholder="Search tasks..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
     </div>
   );
 };

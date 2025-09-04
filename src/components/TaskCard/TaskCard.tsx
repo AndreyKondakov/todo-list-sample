@@ -6,36 +6,27 @@ import {
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import type { Task } from "../../types/task";
 import type { BoardState } from "../../types/board";
+import { highlightMatch } from "../../utils/highlight";
+import { Checkbox } from "../ui/Checkbox/Checkbox";
+import type { FuseResultMatch } from "fuse.js";
 
 interface TaskCardProps {
   task: Task;
   columnId: string;
   setBoardData: React.Dispatch<React.SetStateAction<BoardState>>;
   searchQuery?: string;
+  matches?: FuseResultMatch[];
+  isSelected?: boolean;
+  toggleSelect?: () => void;
 }
-
-const highlightMatch = (text: string, query?: string) => {
-  if (!query || !query.trim()) return text;
-
-  const regex = new RegExp(`(${query})`, "gi");
-  const parts = text.split(regex);
-
-  return parts.map((part, i) =>
-    regex.test(part) ? (
-      <mark key={i} style={{ backgroundColor: "yellow" }}>
-        {part}
-      </mark>
-    ) : (
-      part
-    )
-  );
-};
 
 const TaskCard: React.FC<TaskCardProps> = ({
   task,
   columnId,
   setBoardData,
   searchQuery,
+  isSelected = false,
+  toggleSelect,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -105,11 +96,13 @@ const TaskCard: React.FC<TaskCardProps> = ({
       className={`${styles.taskCard} ${isDragOver ? styles.dragOver : ""}`}
     >
       <div className={styles.taskRow}>
-        <input
-          type="checkbox"
+        <Checkbox checked={isSelected} onChange={toggleSelect} />
+        <Checkbox
           checked={task.isComplete}
           onChange={toggleComplete}
+          variant="secondary"
         />
+
         {isEditing ? (
           <input
             className={styles.taskInput}
@@ -120,7 +113,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           />
         ) : (
           <p className={styles.taskText}>
-            {highlightMatch(task.content, searchQuery)}
+            {highlightMatch(task.content, searchQuery ?? "")}
           </p>
         )}
 

@@ -9,7 +9,8 @@ import type { Column as ColumnType } from "../../types/column";
 import type { Task } from "../../types/task";
 import type { BoardState } from "../../types/board";
 import Button from "../ui/Button";
-import type Fuse from "fuse.js";
+import type { FuseResultMatch } from "fuse.js";
+import { Checkbox } from "../ui/Checkbox/Checkbox";
 
 interface ColumnProps {
   column: ColumnType;
@@ -17,7 +18,7 @@ interface ColumnProps {
   setBoardData: React.Dispatch<React.SetStateAction<BoardState>>;
   searchQuery: string;
   filterStatus: "all" | "completed" | "incomplete";
-  matchesMap: Map<string, Fuse.FuseResultMatch[]>;
+  matchesMap: Map<string, FuseResultMatch[]>;
 }
 
 const Column: React.FC<ColumnProps> = ({
@@ -25,7 +26,6 @@ const Column: React.FC<ColumnProps> = ({
   tasks,
   setBoardData,
   searchQuery,
-  filterStatus,
   matchesMap,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -33,6 +33,8 @@ const Column: React.FC<ColumnProps> = ({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleText, setTitleText] = useState(column.title);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
 
   useEffect(() => setTitleText(column.title), [column.title]);
 
@@ -107,6 +109,68 @@ const Column: React.FC<ColumnProps> = ({
     setIsEditingTitle(false);
   };
 
+  const toggleSelectTask = (taskId: string) => {
+    setSelectedTasks((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(taskId)) newSet.delete(taskId);
+      else newSet.add(taskId);
+      return newSet;
+    });
+  };
+
+  const allVisibleSelected =
+    tasks.length > 0 && tasks.every((t) => selectedTasks.has(t.id));
+
+  const toggleSelectAllVisible = () => {
+    setSelectedTasks((prev) => {
+      if (allVisibleSelected)
+        return new Set(
+          [...prev].filter((id) => !tasks.some((t) => t.id === id))
+        );
+      const newSet = new Set(prev);
+      tasks.forEach((t) => newSet.add(t.id));
+      return newSet;
+    });
+  };
+
+  const markSelectedAsComplete = () => {
+    setBoardData((prev) => {
+      const newTasks = { ...prev.tasks };
+      selectedTasks.forEach((id) => {
+        if (newTasks[id]) newTasks[id].isComplete = true;
+      });
+      return { ...prev, tasks: newTasks };
+    });
+  };
+
+  const markSelectedAsIncomplete = () => {
+    setBoardData((prev) => {
+      const newTasks = { ...prev.tasks };
+      selectedTasks.forEach((id) => {
+        if (newTasks[id]) newTasks[id].isComplete = false;
+      });
+      return { ...prev, tasks: newTasks };
+    });
+  };
+
+  const deleteSelected = () => {
+    setBoardData((prev) => {
+      const newTasks = { ...prev.tasks };
+      const newColumns = { ...prev.columns };
+
+      selectedTasks.forEach((id) => {
+        delete newTasks[id];
+        Object.values(newColumns).forEach((col) => {
+          col.taskIds = col.taskIds.filter((tid) => tid !== id);
+        });
+      });
+
+      return { ...prev, tasks: newTasks, columns: newColumns };
+    });
+
+    setSelectedTasks(new Set());
+  };
+
   return (
     <div
       ref={ref}
@@ -152,31 +216,45 @@ const Column: React.FC<ColumnProps> = ({
                   ✎
                 </button>
               </div>
+              <button
+                className={styles.iconButton}
+                onClick={() => {
+                  setBoardData((prev) => {
+                    const { [column.id]: _, ...restCols } = prev.columns;
+                    const taskIdsToRemove = prev.columns[column.id].taskIds;
+                    const restTasks = { ...prev.tasks };
+                    taskIdsToRemove.forEach((id) => delete restTasks[id]);
+                    return {
+                      tasks: restTasks,
+                      columns: restCols,
+                      columnOrder: prev.columnOrder.filter(
+                        (cId) => cId !== column.id
+                      ),
+                    };
+                  });
+                }}
+                title="Delete column"
+              >
+                🗑
+              </button>
             </div>
-            <button
-              className={styles.iconButton}
-              onClick={() => {
-                setBoardData((prev) => {
-                  const { [column.id]: _, ...restCols } = prev.columns;
-                  const taskIdsToRemove = prev.columns[column.id].taskIds;
-                  const restTasks = { ...prev.tasks };
-                  taskIdsToRemove.forEach((id) => delete restTasks[id]);
-                  return {
-                    tasks: restTasks,
-                    columns: restCols,
-                    columnOrder: prev.columnOrder.filter(
-                      (cId) => cId !== column.id
-                    ),
-                  };
-                });
-              }}
-              title="Delete column"
-            >
-              🗑
-            </button>
           </>
         )}
       </header>
+
+      <div className={styles.columnActions}>
+        <Button onClick={markSelectedAsComplete}>Make Completed</Button>
+        <Button onClick={markSelectedAsIncomplete}>Make Incompleted</Button>
+        <Button onClick={deleteSelected}>Delete</Button>
+      </div>
+
+      <div className={styles.columnSelector}>
+        <Checkbox
+          checked={allVisibleSelected}
+          label="Select All"
+          onChange={toggleSelectAllVisible}
+        />
+      </div>
 
       <div className={styles.columnTasksList}>
         {tasks.map((task) => (
@@ -187,6 +265,8 @@ const Column: React.FC<ColumnProps> = ({
             setBoardData={setBoardData}
             searchQuery={searchQuery}
             matches={matchesMap.get(task.id) || []}
+            isSelected={selectedTasks.has(task.id)}
+            toggleSelect={() => toggleSelectTask(task.id)}
           />
         ))}
       </div>
