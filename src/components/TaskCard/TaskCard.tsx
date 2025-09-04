@@ -92,6 +92,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
   const handleDeleteTask = () => {
     setBoardData((prev) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [task.id]: _, ...restTasks } = prev.tasks;
       const updatedColumns = Object.fromEntries(
         Object.entries(prev.columns).map(([colId, col]) => [

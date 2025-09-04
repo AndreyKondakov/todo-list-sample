@@ -7,7 +7,7 @@ import Button from "../../components/ui/Button";
 import Column from "../../components/Column/Column";
 import FilterBar from "../../components/FilterBar/FilterBar";
 import styles from "./Board.module.scss";
-import type { BoardState } from "../../types/board";
+import type { BoardState, DragData } from "../../types/board";
 import type { FuseResult, FuseResultMatch } from "fuse.js";
 import type { Task } from "../../types/task";
 
@@ -32,8 +32,10 @@ const Board: React.FC = () => {
       onDrop: ({ source, location }) => {
         if (!source?.data) return;
 
-        const src = source.data as any;
-        const target = location.current.dropTargets[0]?.data as any;
+        const src = source.data as DragData;
+        const target = location.current.dropTargets[0]?.data as
+          | DragData
+          | undefined;
 
         if (src.type === "column" && target?.type === "column") {
           setBoardData((prev) => {
@@ -54,7 +56,7 @@ const Board: React.FC = () => {
             if (!fromColumnId || !toColumnId) return prev;
 
             const fromTasks = [...prev.columns[fromColumnId].taskIds];
-            let toTasks =
+            const toTasks =
               fromColumnId === toColumnId
                 ? [...fromTasks]
                 : [...prev.columns[toColumnId].taskIds];

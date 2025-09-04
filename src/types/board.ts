@@ -6,3 +6,8 @@ export interface BoardState {
   columns: { [columnId: string]: Column };
   columnOrder: string[];
 }
+
+export type DragData =
+  | { type: "task"; taskId: string; columnId: string }
+  | { type: "column"; columnId: string }
+  | { type: "empty-column"; columnId: string };

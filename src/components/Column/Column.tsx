@@ -191,6 +191,7 @@ const Column: React.FC<ColumnProps> = ({
 
   const handleDeleteColumn = () => {
     setBoardData((prev) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [column.id]: _, ...restCols } = prev.columns;
       const taskIdsToRemove = prev.columns[column.id].taskIds;
       const restTasks = { ...prev.tasks };
