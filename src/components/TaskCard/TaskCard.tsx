@@ -11,12 +11,31 @@ interface TaskCardProps {
   task: Task;
   columnId: string;
   setBoardData: React.Dispatch<React.SetStateAction<BoardState>>;
+  searchQuery?: string;
 }
+
+const highlightMatch = (text: string, query?: string) => {
+  if (!query || !query.trim()) return text;
+
+  const regex = new RegExp(`(${query})`, "gi");
+  const parts = text.split(regex);
+
+  return parts.map((part, i) =>
+    regex.test(part) ? (
+      <mark key={i} style={{ backgroundColor: "yellow" }}>
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
+};
 
 const TaskCard: React.FC<TaskCardProps> = ({
   task,
   columnId,
   setBoardData,
+  searchQuery,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -31,20 +50,11 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
     const cleanupDrag = draggable({
       element: el,
-      getInitialData: () => ({
-        type: "task",
-        taskId: task.id,
-        columnId,
-      }),
+      getInitialData: () => ({ type: "task", taskId: task.id, columnId }),
     });
-
     const cleanupDrop = dropTargetForElements({
       element: el,
-      getData: () => ({
-        type: "task",
-        taskId: task.id,
-        columnId,
-      }),
+      getData: () => ({ type: "task", taskId: task.id, columnId }),
       onDragEnter: () => setIsDragOver(true),
       onDragLeave: () => setIsDragOver(false),
       onDrop: () => setIsDragOver(false),
@@ -78,6 +88,16 @@ const TaskCard: React.FC<TaskCardProps> = ({
     setIsEditing(false);
   };
 
+  const toggleComplete = () => {
+    setBoardData((prev) => ({
+      ...prev,
+      tasks: {
+        ...prev.tasks,
+        [task.id]: { ...prev.tasks[task.id], isComplete: !task.isComplete },
+      },
+    }));
+  };
+
   return (
     <div
       ref={ref}
@@ -85,6 +105,11 @@ const TaskCard: React.FC<TaskCardProps> = ({
       className={`${styles.taskCard} ${isDragOver ? styles.dragOver : ""}`}
     >
       <div className={styles.taskRow}>
+        <input
+          type="checkbox"
+          checked={task.isComplete}
+          onChange={toggleComplete}
+        />
         {isEditing ? (
           <input
             className={styles.taskInput}
@@ -94,7 +119,9 @@ const TaskCard: React.FC<TaskCardProps> = ({
             autoFocus
           />
         ) : (
-          <p className={styles.taskText}>{task.content}</p>
+          <p className={styles.taskText}>
+            {highlightMatch(task.content, searchQuery)}
+          </p>
         )}
 
         <div className={styles.taskActions}>

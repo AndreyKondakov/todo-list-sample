@@ -9,14 +9,25 @@ import type { Column as ColumnType } from "../../types/column";
 import type { Task } from "../../types/task";
 import type { BoardState } from "../../types/board";
 import Button from "../ui/Button";
+import type Fuse from "fuse.js";
 
 interface ColumnProps {
   column: ColumnType;
   tasks: Task[];
   setBoardData: React.Dispatch<React.SetStateAction<BoardState>>;
+  searchQuery: string;
+  filterStatus: "all" | "completed" | "incomplete";
+  matchesMap: Map<string, Fuse.FuseResultMatch[]>;
 }
 
-const Column: React.FC<ColumnProps> = ({ column, tasks, setBoardData }) => {
+const Column: React.FC<ColumnProps> = ({
+  column,
+  tasks,
+  setBoardData,
+  searchQuery,
+  filterStatus,
+  matchesMap,
+}) => {
   const ref = useRef<HTMLDivElement>(null);
   const [newTask, setNewTask] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -144,22 +155,21 @@ const Column: React.FC<ColumnProps> = ({ column, tasks, setBoardData }) => {
             </div>
             <button
               className={styles.iconButton}
-              onClick={() =>
+              onClick={() => {
                 setBoardData((prev) => {
                   const { [column.id]: _, ...restCols } = prev.columns;
-                  const { columnOrder, tasks } = prev;
-
                   const taskIdsToRemove = prev.columns[column.id].taskIds;
-                  const restTasks = { ...tasks };
+                  const restTasks = { ...prev.tasks };
                   taskIdsToRemove.forEach((id) => delete restTasks[id]);
-
                   return {
                     tasks: restTasks,
                     columns: restCols,
-                    columnOrder: columnOrder.filter((cId) => cId !== column.id),
+                    columnOrder: prev.columnOrder.filter(
+                      (cId) => cId !== column.id
+                    ),
                   };
-                })
-              }
+                });
+              }}
               title="Delete column"
             >
               🗑
@@ -169,16 +179,16 @@ const Column: React.FC<ColumnProps> = ({ column, tasks, setBoardData }) => {
       </header>
 
       <div className={styles.columnTasksList}>
-        {tasks.map((task) =>
-          task ? (
-            <TaskCard
-              key={task.id}
-              task={task}
-              columnId={column.id}
-              setBoardData={setBoardData}
-            />
-          ) : null
-        )}
+        {tasks.map((task) => (
+          <TaskCard
+            key={task.id}
+            task={task}
+            columnId={column.id}
+            setBoardData={setBoardData}
+            searchQuery={searchQuery}
+            matches={matchesMap.get(task.id) || []}
+          />
+        ))}
       </div>
 
       <hr className={styles.columnDivider} />

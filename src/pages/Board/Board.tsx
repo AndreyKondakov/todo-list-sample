@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import styles from "./Board.module.scss";
 import Column from "../../components/Column/Column";
 import Button from "../../components/ui/Button";
+import FilterBar from "../../components/FilterBar/FilterBar";
 import { initialData } from "../../data/initialData";
 import type { BoardState } from "../../types/board";
 import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import Fuse from "fuse.js";
 
 const LOCAL_STORAGE_KEY = "todo-board-v3";
 
@@ -24,6 +26,10 @@ function loadBoard(): BoardState {
 
 const Board: React.FC = () => {
   const [boardData, setBoardData] = useState<BoardState>(() => loadBoard());
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "completed" | "incomplete"
+  >("all");
 
   useEffect(() => {
     try {
@@ -33,7 +39,7 @@ const Board: React.FC = () => {
     }
   }, [boardData]);
 
-  // drag & drop
+  // Drag & drop
   useEffect(() => {
     return monitorForElements({
       onDrop: ({ source, location }) => {
@@ -47,12 +53,9 @@ const Board: React.FC = () => {
             const newOrder = [...prev.columnOrder];
             const fromIndex = newOrder.indexOf(src.columnId);
             const toIndex = newOrder.indexOf(target.columnId);
-
             if (fromIndex === -1 || toIndex === -1) return prev;
-
             newOrder.splice(fromIndex, 1);
             newOrder.splice(toIndex, 0, src.columnId);
-
             return { ...prev, columnOrder: newOrder };
           });
         }
@@ -78,17 +81,13 @@ const Board: React.FC = () => {
             const targetEl = document.querySelector(
               `[data-task-id="${target.taskId}"]`
             ) as HTMLElement | null;
-
             let insertIndex = toTasks.indexOf(target.taskId);
             if (insertIndex === -1) insertIndex = toTasks.length;
 
             if (targetEl) {
               const rect = targetEl.getBoundingClientRect();
               const middleY = rect.top + rect.height / 2;
-
-              if (location.current.input.clientY > middleY) {
-                insertIndex += 1;
-              }
+              if (location.current.input.clientY > middleY) insertIndex += 1;
             }
 
             toTasks.splice(insertIndex, 0, src.taskId);
@@ -101,10 +100,7 @@ const Board: React.FC = () => {
                   ...prev.columns[fromColumnId],
                   taskIds: fromTasks,
                 },
-                [toColumnId]: {
-                  ...prev.columns[toColumnId],
-                  taskIds: toTasks,
-                },
+                [toColumnId]: { ...prev.columns[toColumnId], taskIds: toTasks },
               },
             };
           });
@@ -113,14 +109,45 @@ const Board: React.FC = () => {
     });
   }, []);
 
+  // Smart search with Fuse.js
+  const fuseOptions = {
+    keys: ["content"],
+    includeMatches: true,
+    threshold: 0.4,
+  };
+  const fuse = new Fuse(Object.values(boardData.tasks), fuseOptions);
+  const fuseResults = searchQuery ? fuse.search(searchQuery) : [];
+
+  const matchedTasksMap = new Map<string, Fuse.FuseResultMatch[]>();
+  fuseResults.forEach((res) => {
+    if (res.matches) matchedTasksMap.set(res.item.id, res.matches);
+  });
+
   return (
     <main className={styles.board}>
+      <FilterBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+      />
+
       <div className={styles.columnsList}>
         {boardData.columnOrder.map((columnId) => {
           const column = boardData.columns[columnId];
           if (!column) return null;
 
-          const tasks = column.taskIds.map((taskId) => boardData.tasks[taskId]);
+          const tasks = column.taskIds
+            .map((taskId) => boardData.tasks[taskId])
+            .filter((task) => {
+              if (!task) return false;
+              if (filterStatus === "completed" && !task.isComplete)
+                return false;
+              if (filterStatus === "incomplete" && task.isComplete)
+                return false;
+              if (searchQuery && !matchedTasksMap.has(task.id)) return false;
+              return true;
+            });
 
           return (
             <Column
@@ -128,13 +155,16 @@ const Board: React.FC = () => {
               column={column}
               tasks={tasks}
               setBoardData={setBoardData}
+              searchQuery={searchQuery}
+              matchesMap={matchedTasksMap}
+              filterStatus={filterStatus}
             />
           );
         })}
 
         <div className={styles.addColumnContainer}>
           <Button
-            onClick={() =>
+            onClick={() => {
               setBoardData((prev) => {
                 const id = `column-${Date.now()}`;
                 return {
@@ -145,8 +175,8 @@ const Board: React.FC = () => {
                   },
                   columnOrder: [...prev.columnOrder, id],
                 };
-              })
-            }
+              });
+            }}
           >
             + Add another column
           </Button>

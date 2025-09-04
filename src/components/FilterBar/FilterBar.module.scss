@@ -1,0 +1,27 @@
+.filterBar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.filterButtons button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filterButtons button.active {
+  background: #ffab00;
+  color: #fff;
+  border-color: #ffab00;
+}
+
+.searchInput {
+  flex-grow: 1;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
