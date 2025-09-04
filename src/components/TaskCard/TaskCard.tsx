@@ -21,6 +21,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
   const ref = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.content);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   useEffect(() => setEditText(task.content), [task.content]);
 
@@ -44,6 +45,9 @@ const TaskCard: React.FC<TaskCardProps> = ({
         taskId: task.id,
         columnId,
       }),
+      onDragEnter: () => setIsDragOver(true),
+      onDragLeave: () => setIsDragOver(false),
+      onDrop: () => setIsDragOver(false),
     });
 
     return () => {
@@ -75,7 +79,10 @@ const TaskCard: React.FC<TaskCardProps> = ({
   };
 
   return (
-    <div ref={ref} className={styles.taskCard}>
+    <div
+      ref={ref}
+      className={`${styles.taskCard} ${isDragOver ? styles.dragOver : ""}`}
+    >
       <div className={styles.taskRow}>
         {isEditing ? (
           <input
@@ -108,13 +115,40 @@ const TaskCard: React.FC<TaskCardProps> = ({
               </button>
             </>
           ) : (
-            <button
-              className={styles.iconButton}
-              onClick={() => setIsEditing(true)}
-              title="Edit"
-            >
-              ✎
-            </button>
+            <>
+              <button
+                className={styles.iconButton}
+                onClick={() => setIsEditing(true)}
+                title="Edit"
+              >
+                ✎
+              </button>
+              <button
+                className={styles.iconButton}
+                onClick={() =>
+                  setBoardData((prev) => {
+                    const { [task.id]: _, ...restTasks } = prev.tasks;
+                    const updatedColumns = Object.fromEntries(
+                      Object.entries(prev.columns).map(([colId, col]) => [
+                        colId,
+                        {
+                          ...col,
+                          taskIds: col.taskIds.filter((id) => id !== task.id),
+                        },
+                      ])
+                    );
+                    return {
+                      ...prev,
+                      tasks: restTasks,
+                      columns: updatedColumns,
+                    };
+                  })
+                }
+                title="Delete task"
+              >
+                🗑
+              </button>
+            </>
           )}
         </div>
       </div>

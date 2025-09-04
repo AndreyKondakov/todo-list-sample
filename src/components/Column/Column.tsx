@@ -129,18 +129,42 @@ const Column: React.FC<ColumnProps> = ({ column, tasks, setBoardData }) => {
             </div>
           </div>
         ) : (
-          <div className={styles.titleRow}>
-            <h2 className={styles.title}>{column.title}</h2>
-            <div className={styles.headerActions}>
-              <button
-                className={styles.iconButton}
-                onClick={() => setIsEditingTitle(true)}
-                title="Edit column title"
-              >
-                ✎
-              </button>
+          <>
+            <div className={styles.titleRow}>
+              <h2 className={styles.title}>{column.title}</h2>
+              <div className={styles.headerActions}>
+                <button
+                  className={styles.iconButton}
+                  onClick={() => setIsEditingTitle(true)}
+                  title="Edit column title"
+                >
+                  ✎
+                </button>
+              </div>
             </div>
-          </div>
+            <button
+              className={styles.iconButton}
+              onClick={() =>
+                setBoardData((prev) => {
+                  const { [column.id]: _, ...restCols } = prev.columns;
+                  const { columnOrder, tasks } = prev;
+
+                  const taskIdsToRemove = prev.columns[column.id].taskIds;
+                  const restTasks = { ...tasks };
+                  taskIdsToRemove.forEach((id) => delete restTasks[id]);
+
+                  return {
+                    tasks: restTasks,
+                    columns: restCols,
+                    columnOrder: columnOrder.filter((cId) => cId !== column.id),
+                  };
+                })
+              }
+              title="Delete column"
+            >
+              🗑
+            </button>
+          </>
         )}
       </header>
 
