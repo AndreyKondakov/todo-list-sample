@@ -107,6 +107,35 @@ const Board: React.FC = () => {
             };
           });
         }
+
+        if (src.type === "task" && target?.type === "empty-column") {
+          setBoardData((prev) => {
+            const fromColumnId = src.columnId;
+            const toColumnId = target.columnId;
+            if (!fromColumnId || !toColumnId) return prev;
+
+            const fromTasks = [...prev.columns[fromColumnId].taskIds];
+            const toTasks = [...prev.columns[toColumnId].taskIds];
+
+            const fromIndex = fromTasks.indexOf(src.taskId);
+            if (fromIndex !== -1) fromTasks.splice(fromIndex, 1);
+
+            // просто додаємо в кінець порожнього списку
+            toTasks.push(src.taskId);
+
+            return {
+              ...prev,
+              columns: {
+                ...prev.columns,
+                [fromColumnId]: {
+                  ...prev.columns[fromColumnId],
+                  taskIds: fromTasks,
+                },
+                [toColumnId]: { ...prev.columns[toColumnId], taskIds: toTasks },
+              },
+            };
+          });
+        }
       },
     });
   }, []);

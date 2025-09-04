@@ -61,6 +61,23 @@ const Column: React.FC<ColumnProps> = ({
     };
   }, [column.id]);
 
+  useEffect(() => {
+    const el = document.querySelector(
+      `[data-tasks-container="${column.id}"]`
+    ) as HTMLElement | null;
+    if (!el) return;
+
+    const cleanupDrop = dropTargetForElements({
+      element: el,
+      getData: () => ({ type: "empty-column", columnId: column.id }),
+      onDragEnter: () => setIsDragOver(true),
+      onDragLeave: () => setIsDragOver(false),
+      onDrop: () => setIsDragOver(false),
+    });
+
+    return () => cleanupDrop();
+  }, [column.id]);
+
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     const text = newTask.trim();
@@ -256,7 +273,7 @@ const Column: React.FC<ColumnProps> = ({
         />
       </div>
 
-      <div className={styles.columnTasksList}>
+      <div className={styles.columnTasksList} data-tasks-container={column.id}>
         {tasks.map((task) => (
           <TaskCard
             key={task.id}
