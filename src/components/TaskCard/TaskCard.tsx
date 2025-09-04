@@ -93,29 +93,39 @@ const TaskCard: React.FC<TaskCardProps> = ({
     <div
       ref={ref}
       data-task-id={task.id}
-      className={`${styles.taskCard} ${isDragOver ? styles.dragOver : ""}`}
+      className={`${styles.taskCard} ${isDragOver ? styles.dragOver : ""} ${
+        task.isComplete ? styles.isComplete : ""
+      }`}
     >
       <div className={styles.taskRow}>
-        <Checkbox checked={isSelected} onChange={toggleSelect} />
-        <Checkbox
-          checked={task.isComplete}
-          onChange={toggleComplete}
-          variant="secondary"
-        />
-
-        {isEditing ? (
-          <input
-            className={styles.taskInput}
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSave()}
-            autoFocus
+        <div className={styles.taskCheckboxes}>
+          <Checkbox
+            checked={isSelected}
+            onChange={toggleSelect}
+            className={styles.isSelected}
           />
-        ) : (
-          <p className={styles.taskText}>
-            {highlightMatch(task.content, searchQuery ?? "")}
-          </p>
-        )}
+          <Checkbox
+            checked={task.isComplete}
+            onChange={toggleComplete}
+            variant="secondary"
+          />
+        </div>
+
+        <div className={styles.taskContent}>
+          {isEditing ? (
+            <input
+              className={styles.taskInput}
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSave()}
+              autoFocus
+            />
+          ) : (
+            <p className={styles.taskText}>
+              {highlightMatch(task.content, searchQuery ?? "")}
+            </p>
+          )}
+        </div>
 
         <div className={styles.taskActions}>
           {isEditing ? (

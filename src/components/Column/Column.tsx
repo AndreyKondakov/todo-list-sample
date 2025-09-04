@@ -215,28 +215,28 @@ const Column: React.FC<ColumnProps> = ({
                 >
                   ✎
                 </button>
+                <button
+                  className={styles.iconButton}
+                  onClick={() => {
+                    setBoardData((prev) => {
+                      const { [column.id]: _, ...restCols } = prev.columns;
+                      const taskIdsToRemove = prev.columns[column.id].taskIds;
+                      const restTasks = { ...prev.tasks };
+                      taskIdsToRemove.forEach((id) => delete restTasks[id]);
+                      return {
+                        tasks: restTasks,
+                        columns: restCols,
+                        columnOrder: prev.columnOrder.filter(
+                          (cId) => cId !== column.id
+                        ),
+                      };
+                    });
+                  }}
+                  title="Delete column"
+                >
+                  🗑
+                </button>
               </div>
-              <button
-                className={styles.iconButton}
-                onClick={() => {
-                  setBoardData((prev) => {
-                    const { [column.id]: _, ...restCols } = prev.columns;
-                    const taskIdsToRemove = prev.columns[column.id].taskIds;
-                    const restTasks = { ...prev.tasks };
-                    taskIdsToRemove.forEach((id) => delete restTasks[id]);
-                    return {
-                      tasks: restTasks,
-                      columns: restCols,
-                      columnOrder: prev.columnOrder.filter(
-                        (cId) => cId !== column.id
-                      ),
-                    };
-                  });
-                }}
-                title="Delete column"
-              >
-                🗑
-              </button>
             </div>
           </>
         )}

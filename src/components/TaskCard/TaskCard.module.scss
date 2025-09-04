@@ -3,18 +3,31 @@
   padding: 12px;
   margin: 6px;
   border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   cursor: grab;
 
   &:hover {
-    background-color: #f3fff5;
+    background-color: #ffffa0;
   }
+}
+
+.isComplete {
+  background-color: #caffa8;
 }
 
 .taskRow {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
+}
+
+.taskContent {
+  width: 100%;
+}
+
+.taskCheckboxes {
+  display: flex;
 }
 
 .taskText {
@@ -48,4 +61,8 @@
 .dragOver {
   background-color: #fff7e6;
   outline: 2px dashed #ffab00;
+}
+
+.isSelected {
+  margin-right: 4px;
 }

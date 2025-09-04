@@ -1,6 +1,4 @@
-$column-bg-color: #f4f5f7;
-$button-bg-color: rgba(0, 0, 0, 0.05);
-$button-bg-hover-color: rgba(0, 0, 0, 0.1);
+$column-bg-color: rgba(0, 0, 0, 0.1);
 $main-border-radius: 8px;
 
 .column {
@@ -64,6 +62,7 @@ $main-border-radius: 8px;
 .titleRow {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }
 

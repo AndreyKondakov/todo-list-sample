@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./FilterBar.module.scss";
+import Button from "../ui/Button";
 
 interface FilterBarProps {
   searchQuery: string;
@@ -17,24 +18,24 @@ const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <div className={styles.filterBar}>
       <div className={styles.filterButtons}>
-        <button
-          className={filterStatus === "all" ? styles.active : ""}
+        <Button
+          isActive={filterStatus === "all" ? true : false}
           onClick={() => setFilterStatus("all")}
         >
           All
-        </button>
-        <button
-          className={filterStatus === "completed" ? styles.active : ""}
+        </Button>
+        <Button
+          isActive={filterStatus === "completed" ? true : false}
           onClick={() => setFilterStatus("completed")}
         >
           Completed
-        </button>
-        <button
-          className={filterStatus === "incomplete" ? styles.active : ""}
+        </Button>
+        <Button
+          isActive={filterStatus === "incomplete" ? true : false}
           onClick={() => setFilterStatus("incomplete")}
         >
           Incomplete
-        </button>
+        </Button>
       </div>
       <div className={styles.searchContainer}>
         <input
