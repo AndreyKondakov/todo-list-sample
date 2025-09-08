@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   draggable,
   dropTargetForElements,
@@ -126,11 +126,6 @@ const TaskCard: React.FC<TaskCardProps> = ({
             onChange={toggleSelect}
             className={styles.isSelected}
           />
-          <Checkbox
-            checked={task.isComplete}
-            onChange={toggleComplete}
-            variant="secondary"
-          />
         </div>
 
         <div className={styles.taskContent}>
@@ -169,6 +164,11 @@ const TaskCard: React.FC<TaskCardProps> = ({
             </>
           ) : (
             <>
+              <Checkbox
+                checked={task.isComplete}
+                onChange={toggleComplete}
+                variant="secondary"
+              />
               <button
                 className={styles.iconButton}
                 onClick={() => setIsEditing(true)}

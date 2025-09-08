@@ -1,4 +1,4 @@
-$column-bg-color: rgba(0, 0, 0, 0.1);
+$column-bg-color: rgba(0, 0, 0, 0.05);
 $main-border-radius: 8px;
 
 .column {
@@ -9,6 +9,7 @@ $main-border-radius: 8px;
   width: 320px;
   flex-shrink: 0;
   height: fit-content;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .columnHeader {

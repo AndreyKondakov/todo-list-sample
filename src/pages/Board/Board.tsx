@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Fuse from "fuse.js";
 
 import { loadBoard, LOCAL_STORAGE_KEY } from "../../app/store";
@@ -140,6 +140,19 @@ const Board: React.FC = () => {
     if (res.matches) matchedTasksMap.set(res.item.id, [...res.matches]);
   });
 
+  const handleCreateNewColumn = () =>
+    setBoardData((prev) => {
+      const id = `column-${Date.now()}`;
+      return {
+        ...prev,
+        columns: {
+          ...prev.columns,
+          [id]: { id, title: "New column", taskIds: [] },
+        },
+        columnOrder: [...prev.columnOrder, id],
+      };
+    });
+
   return (
     <main className={styles.board}>
       <FilterBar
@@ -180,23 +193,7 @@ const Board: React.FC = () => {
         })}
 
         <div className={styles.addColumnContainer}>
-          <Button
-            onClick={() => {
-              setBoardData((prev) => {
-                const id = `column-${Date.now()}`;
-                return {
-                  ...prev,
-                  columns: {
-                    ...prev.columns,
-                    [id]: { id, title: "New column", taskIds: [] },
-                  },
-                  columnOrder: [...prev.columnOrder, id],
-                };
-              });
-            }}
-          >
-            + Add another column
-          </Button>
+          <Button onClick={handleCreateNewColumn}>+ Add another column</Button>
         </div>
       </div>
     </main>
